@@ -1,65 +1,46 @@
+# MEDIA.MONKS CHALLENGE
 
-# Welcome to your CDK Python project!
+### Pedido
 
-You should explore the contents of this project. It demonstrates a CDK app with an instance of a stack (`aws_challenge_stack`)
-which contains an Amazon SQS queue that is subscribed to an Amazon SNS topic.
+A tu equipo llega el siguiente pedido de parte de un cliente interno: “Necesitamos una tabla con toda la información del usuario pero no nos interesa saber el detalle de los hits (interacciones) que tuvo sino solo la cantidad. Además, necesitamos otra tabla que tenga la cantidad de usuarios y hits por día”. 
 
-The `cdk.json` file tells the CDK Toolkit how to execute your app.
+### Consigna
 
-This project is set up like a standard Python project.  The initialization process also creates
-a virtualenv within this project, stored under the .venv directory.  To create the virtualenv
-it assumes that there is a `python3` executable in your path with access to the `venv` package.
-If for any reason the automatic creation of the virtualenv fails, you can create the virtualenv
-manually once the init process completes.
+La consigna, entonces, es la siguiente: deberás diseñar e implementar una arquitectura en Amazon Web Services (AWS) para que cada vez que se suba un JSON, se dispare automáticamente un proceso por el cual se aplane la tabla y se almacene con la información del usuario, de la sesión y la cantidad de hits (interacciones). 
 
-To manually create a virtualenv on MacOS and Linux:
+Además, deberás armar un proceso que se dispare al cierre de cada día y sume la cantidad de hits y usuarios por día y los guarde en otra tabla.
 
-```
-$ python3 -m venv .venv
-```
+### Entregable
 
-After the init process completes and the virtualenv is created, you can use the following
-step to activate your virtualenv.
+Deberás implementar la solución en un proyecto propio (podés usar los créditos gratuitos que provee AWS). El entregable será un documento que contenga:
 
-```
-$ source .venv/bin/activate
-```
+    - Diagrama de la arquitectura utilizada
+    - Documentación paso por paso
+    - El código utilizado para desarrollar las soluciones
+    - Alguna captura de pantalla en caso de que lo creas relevante
 
-If you are a Windows platform, you would activate the virtualenv like this:
+Una vez listo, deberás completar el [siguiente form](https://forms.gle/99rq9wGMkgp1RxxcA) adjuntando el documento. El plazo máximo para resolverlo es de 10 días corridos.
 
-```
-% .venv\Scripts\activate.bat
-```
+*La consigna es relativamente general y con varios huecos a propósito. En la segunda entrevista se evaluará no solo la solución y la presentación sino el proceso de decisión y las alternativas consideradas.*
 
-Once the virtualenv is activated, you can install the required dependencies.
+___
 
-```
-$ pip install -r requirements.txt
-```
+## ARQUITECTURA
 
-At this point you can now synthesize the CloudFormation template for this code.
+Una funcion lambda se dispara cada vez que un nuevo archivo *.json* se carga al bucket S3, esta funcion utilizando las librerias Pandas y psycoPG2 carga la informacion en la tabla **hits** de la BD Postgres (RDS)
 
-```
-$ cdk synth
-```
+Otra funcion lambda tiene su schdule cron diariamente a la medianoche para hacer los calculos de agregacion de users y hits del dia en otra tabla de la misma BD en RDS
 
-You can now begin exploring the source code, contained in the hello directory.
-There is also a very trivial test included that can be run like this:
+![](./arq.png "arquitectura")
 
-```
-$ pytest
-```
+Toda esa arquitectura es desplegada por Cloud Formation programaticamente haciendo uso de la AWS CDK
 
-To add additional dependencies, for example other CDK libraries, just add to
-your requirements.txt file and rerun the `pip install -r requirements.txt`
-command.
+Utilizamos los siguientes comandos **synth** para visualizar el ARM template y **bootstrap** seguidp de **deploy** para efectivamente provisionar
 
-## Useful commands
+    $ cdk synth
+    $ cdk bootstrap
+    $ cdk deploy
 
- * `cdk ls`          list all stacks in the app
- * `cdk synth`       emits the synthesized CloudFormation template
- * `cdk deploy`      deploy this stack to your default AWS account/region
- * `cdk diff`        compare deployed stack with current state
- * `cdk docs`        open CDK documentation
+Por ultimo para apagar los recursos luego del test utilizamos **destroy**
 
-Enjoy!
+    $ cdk destroy

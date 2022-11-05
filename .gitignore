@@ -1,22 +1,9 @@
-*.swp
-package-lock.json
-.pytest_cache
-*.egg-info
-
-# Byte-compiled / optimized / DLL files
-__pycache__/
-*.py[cod]
-*$py.class
-
-# Environments
+probando.ipynb
+data/
 .env
-.venv
-env/
-venv/
-ENV/
-env.bak/
-venv.bak/
-
-# CDK Context & Staging files
-.cdk.staging/
-cdk.out/
+.venv/
+*.swp
+*.egg-info
+# CDK asset staging directory
+.cdk.staging
+cdk.out
