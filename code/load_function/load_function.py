@@ -43,7 +43,9 @@ def get_json(event):
     
     try:
         response = s3_client.get_object(Bucket=bucket, Key=key)
-        return response
+        content = response["Body"].read().decode()
+        content = json.loads(content)
+        return content
 
     except Exception as e:
         print('Error getting object {} from bucket {}'.format(key, bucket), e)

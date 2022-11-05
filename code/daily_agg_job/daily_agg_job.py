@@ -40,7 +40,7 @@ def lambda_handler(event, context):
             cursor.execute("TRUNCATE TABLE monks.daily_hits_agg;")
 
             cursor.execute("""
-                INSERT INTO daily_hits_agg (date, hits_total_count, users_total_count)
+                INSERT INTO monks.daily_hits_agg (date, hits_total_count, users_total_count)
                 SELECT date, 
                     SUM(hit_count) AS hits_total_count, 
                     COUNT(distinct userId) AS users_total_count

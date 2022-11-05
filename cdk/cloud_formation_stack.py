@@ -39,7 +39,11 @@ class CdkStack(Stack):
                     actions=[
                             "s3:GetObject",
                             "s3:PutObject",
-                            "secretsmanager:GetSecretValue"]
+                            "secretsmanager:GetSecretValue",
+                            "logs:CreateLogGroup",
+                            "logs:createLogStream",
+                            "logs:PutLogEvents"
+                            ]
                     ))
         # Create the bucket used to store the data
         s3_bucket = s3.Bucket(self, 'monks_dataBucket')
@@ -47,8 +51,8 @@ class CdkStack(Stack):
         # Create the loaf function
         load_function = lambda_.Function(self, "load_function",
                     runtime=lambda_.Runtime.PYTHON_3_9,
-                    code=lambda_.Code.from_asset("./code/load_new_file"),
-                    handler="LambdaListener.handler",
+                    code=lambda_.Code.from_asset("./code/load_function"),
+                    handler="load_function.lambda_handler",
                     layers=[pandas, psycopg],
                     timeout=Duration.minutes(5),
                     role=lambda_role,
@@ -67,10 +71,10 @@ class CdkStack(Stack):
             notification, s3.NotificationKeyFilter(suffix='.json'))
 
         # Create the daily job function
-        daily_function = lambda_.Function(self, "daily_function",
+        daily_agg_job = lambda_.Function(self, "daily_agg_job",
                     runtime=lambda_.Runtime.PYTHON_3_9,
                     code=lambda_.Code.from_asset("./code/daily_agg_job"),
-                    handler="lambda_function.lambda_handler",
+                    handler="daily_agg_job.lambda_handler",
                     layers=[pandas, psycopg],
                     timeout=Duration.minutes(5),
                     role=lambda_role,
@@ -84,7 +88,7 @@ class CdkStack(Stack):
         daily_rule = events.Rule(self, "Rule",
                     schedule=events.Schedule.expression('cron(0 12 * * ? *)'),
                     )        
-        daily_rule.add_target(targets.LambdaFunction(daily_function))
+        daily_rule.add_target(targets.LambdaFunction(daily_agg_job))
 
         # Create the database
         db = rds.DatabaseInstance(self, "db",
