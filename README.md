@@ -29,18 +29,26 @@ ___
 
 Una funcion lambda se dispara cada vez que un nuevo archivo *.json* se carga al bucket S3, esta funcion utilizando las librerias Pandas y psycoPG2 carga la informacion en la tabla **hits** de la BD Postgres (RDS)
 
-Otra funcion lambda tiene su schdule cron diariamente a la medianoche para hacer los calculos de agregacion de users y hits del dia en otra tabla de la misma BD en RDS
+Otra funcion lambda tiene su schedule cron diariamente para hacer los calculos de agregacion de users y hits del dia en otra tabla de la misma BD en RDS
+
+Las credenciales para la BD RDS se manejan por secrets manager y el logging en streams de CloudWatch
 
 ![](./arq.png "arquitectura")
 
 Toda esa arquitectura es desplegada por Cloud Formation programaticamente haciendo uso de la AWS CDK
 
-Utilizamos los siguientes comandos **synth** para visualizar el ARM template y **bootstrap** seguidp de **deploy** para efectivamente provisionar
+Utilizamos los siguientes comandos **synth** para visualizar el ARM template y **bootstrap** seguido de **deploy** para efectivamente provisionar los recursos descriptos previamente
 
     $ cdk synth
     $ cdk bootstrap
     $ cdk deploy
 
-Por ultimo para apagar los recursos luego del test utilizamos **destroy**
+Por ultimo para apagar los recursos luego del test utilizaremos **destroy**
 
     $ cdk destroy
+
+## TEST
+
+La notebook *probando.ipynb* tiene los resultados de las queries hechas a la RDS BD para corroborar que las Lambda functions logren el resultado esperado
+
+Las credenciales para conectarse a la BD se generan automaticamente por Cloud Formation con lo cual hay que buscarlas en el Secrets Manager en la consola de AWS y en este caso para no exponerlas cargarlas en un archivo .env del cual las toma la notebook

@@ -23,6 +23,7 @@ def lambda_handler(event, context):
     
     try:
         conn = rds_connection()
+        conn.autocommit = True
     except Exception as e:
         print('Error connecting to RDS DB', e)
         raise e
@@ -36,9 +37,19 @@ def lambda_handler(event, context):
                     users_total_count integer NOT NULL
                     );
             """)
+    except Exception as e:
+        print('Error cerating agg table', e)
+        raise e
 
+    try:
+        with conn.cursor() as cursor:
             cursor.execute("TRUNCATE TABLE monks.daily_hits_agg;")
+    except Exception as e:
+        print('Error truncating agg table', e)
+        raise e
 
+    try:
+        with conn.cursor() as cursor:
             cursor.execute("""
                 INSERT INTO monks.daily_hits_agg (date, hits_total_count, users_total_count)
                 SELECT date, 
@@ -47,7 +58,6 @@ def lambda_handler(event, context):
                 FROM monks.hits
                 GROUP BY date;
             """)
-    
     except Exception as e:
         print('Error making daily agg calculations', e)
         raise e

@@ -86,7 +86,7 @@ class CdkStack(Stack):
 
         # Create the event rule and schedule
         daily_rule = events.Rule(self, "Rule",
-                    schedule=events.Schedule.expression('cron(0 12 * * ? *)'),
+                    schedule=events.Schedule.expression('cron(0 16 * * ? *)'),
                     )        
         daily_rule.add_target(targets.LambdaFunction(daily_agg_job))
 

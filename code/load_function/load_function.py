@@ -78,8 +78,17 @@ def lambda_handler(event, context):
     
     try:
         conn = rds_connection()
+        conn.autocommit = True
     except Exception as e:
         print('Error connecting to RDS DB', e)
+        raise e
+
+    try:
+        with conn.cursor() as cursor:
+            cursor.execute("CREATE SCHEMA IF NOT EXISTS monks;")
+
+    except Exception as e:
+        print('Error creating monks schema', e)
         raise e
 
     try:
