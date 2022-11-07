@@ -33,7 +33,7 @@ Otra funcion lambda tiene su schedule cron diariamente para hacer los calculos d
 
 Las credenciales para la BD RDS se manejan por secrets manager y el logging en streams de CloudWatch
 
-![](./arq.png "arquitectura")
+![](./aws_screenshots/arq.png "arquitectura")
 
 Toda esa arquitectura es desplegada por Cloud Formation programaticamente haciendo uso de la AWS CDK
 
